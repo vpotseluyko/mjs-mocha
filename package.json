@@ -1,6 +1,6 @@
 {
   "name": "mjs-mocha",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Simple (very) polyfill to emulate mocha tests in mjs enviroment. For use simply import",
   "main": "index.js",
   "scripts": {
