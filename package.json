@@ -2,7 +2,10 @@
   "name": "mjs-mocha",
   "version": "1.0.3",
   "description": "Simple (very) polyfill to emulate mocha tests in mjs enviroment. For use simply import",
-  "main": "index.js",
+  "main": "src/mocha.mjs",
+  "bin": {
+    "mjs-mocha": "src/index.mjs"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
