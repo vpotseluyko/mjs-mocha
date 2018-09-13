@@ -1,7 +1,8 @@
 {
   "name": "mjs-mocha",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Simple (very) polyfill to emulate mocha tests in mjs enviroment. For use simply import",
+  "keywords": "mocha,mjs,tests,polyfill",
   "main": "src/mocha.mjs",
   "bin": {
     "mjs-mocha": "src/index.mjs"
@@ -9,6 +10,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vpotseluyko/mjs-mocha"
+  },
+  "author": "vyacheslav.potseluyko@gmail.com",
   "license": "ISC"
 }

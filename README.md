@@ -1,5 +1,5 @@
 # mjs-mocha
-A very simple npm mocha mjs polyfill.
+A very simple npm mocha mjs polyfill. No dependencies at all. Very small and light.
 
 ## Install
 ```shell
