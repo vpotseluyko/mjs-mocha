@@ -3,7 +3,7 @@
 import fs from 'fs';
 import path from 'path';
 import cp from 'child_process';
-import __dirname from './dirname';
+import __dirname from '../dirname';
 
 const getRandomString = () => Math.random().toString(36).substring(7);
 
@@ -28,13 +28,24 @@ const testFiles = (files, i = 0) => {
     return null;
   }
 
-  const testFilePath = path.join(path.dirname(files[i]), `${getRandomString()}.mjs`);
+  const testFilePath = path.join(path.join(__dirname, 'temp'), `${getRandomString()}.mjs`);
   const testFile = fs.createWriteStream(testFilePath);
 
-  fs.createReadStream(path.join(__dirname, 'mocha.mjs')).pipe(testFile, { end: false });
+  fs.createReadStream(path.join(__dirname, 'src', 'mocha.mjs')).pipe(testFile, { end: false });
   fs.createReadStream(files[i]).pipe(testFile);
 
-  const test = cp.spawn('node', ['--experimental-modules', testFilePath]);
+  const test = cp.spawn('node', [
+    '--experimental-modules',
+    '--loader', path.join(__dirname, 'src', 'loader.mjs'),
+    testFilePath
+  ], {
+    env: {
+      ...process.env,
+      NODE_ENV: 'test',
+      MOCHA_BASE_FILE: files[i],
+      MOCHA_COPY_FILE: testFilePath,
+    }
+  });
 
   let output;
 
