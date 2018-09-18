@@ -31,8 +31,11 @@ const testFiles = (files, i = 0) => {
   const testFilePath = path.join(path.join(__dirname, 'temp'), `${getRandomString()}.mjs`);
   const testFile = fs.createWriteStream(testFilePath);
 
-  fs.createReadStream(path.join(__dirname, 'src', 'mocha.mjs')).pipe(testFile, { end: false });
-  fs.createReadStream(files[i]).pipe(testFile);
+  const mochaStream = fs.createReadStream(path.join(__dirname, 'src', 'mocha.mjs'));
+  mochaStream.pipe(testFile, { end: false });
+  mochaStream.on('end', () => {
+    fs.createReadStream(files[i]).pipe(testFile);
+  })
 
   const test = cp.spawn('node', [
     '--experimental-modules',
