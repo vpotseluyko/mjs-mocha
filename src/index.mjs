@@ -1,4 +1,5 @@
-#!/usr/bin/env node --experimental-modules
+#!/bin/sh
+':' //; exec node --experimental-modules "$0" "$@"
 
 import fs from 'fs';
 import path from 'path';
@@ -28,7 +29,7 @@ const testFiles = (files, i = 0) => {
     return null;
   }
 
-  const testFilePath = path.join(path.join(__dirname, 'temp'), `${getRandomString()}.mjs`);
+  const testFilePath = path.join(__dirname, 'temp', `${getRandomString()}.mjs`);
   const testFile = fs.createWriteStream(testFilePath);
 
   const mochaStream = fs.createReadStream(path.join(__dirname, 'src', 'mocha.mjs'));
@@ -39,7 +40,8 @@ const testFiles = (files, i = 0) => {
 
   const test = cp.spawn('node', [
     '--experimental-modules',
-    '--loader', path.join(__dirname, 'src', 'loader.mjs'),
+    '--loader',
+    path.join(__dirname, 'src', 'loader.mjs'),
     testFilePath
   ], {
     env: {
