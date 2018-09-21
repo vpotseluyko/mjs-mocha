@@ -1,7 +1,3 @@
-#!/bin/sh
-// eslint-disable-next-line spaced-comment, lines-around-directive, semi
-':' //; exec node --experimental-modules "$0" "$@"
-
 /* eslint-disable no-console */
 /* eslint-disable no-plusplus */
 /* eslint-disable no-await-in-loop */
@@ -71,7 +67,7 @@ const runTest = file => new Promise((resolve, reject) => {
   });
 });
 
-const run = async () => {
+export default async () => {
   const files = getTestFiles(path.resolve());
   let errors = 0;
 
@@ -96,5 +92,3 @@ const run = async () => {
     console.log('\x1b[0m');
   }
 };
-
-run();
