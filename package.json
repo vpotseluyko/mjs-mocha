@@ -16,5 +16,10 @@
     "url": "https://github.com/vpotseluyko/mjs-mocha"
   },
   "author": "vyacheslav.potseluyko@gmail.com",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^5.6.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.14.0"
+  }
 }
