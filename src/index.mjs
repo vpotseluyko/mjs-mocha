@@ -1,8 +1,6 @@
 #!/bin/sh
-
-':';
-
-// ; exec node --experimental-modules "$0" "$@"
+// eslint-disable-next-line spaced-comment, lines-around-directive, semi
+':' //; exec node --experimental-modules "$0" "$@"
 
 /* eslint-disable no-console */
 /* eslint-disable no-plusplus */
