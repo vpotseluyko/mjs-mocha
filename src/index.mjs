@@ -1,5 +1,12 @@
 #!/bin/sh
-':' //; exec node --experimental-modules "$0" "$@"
+
+':';
+
+// ; exec node --experimental-modules "$0" "$@"
+
+/* eslint-disable no-console */
+/* eslint-disable no-plusplus */
+/* eslint-disable no-await-in-loop */
 
 import fs from 'fs';
 import path from 'path';
@@ -24,32 +31,28 @@ const getTestFiles = (dir) => {
 };
 
 // eslint-disable-next-line consistent-return
-const testFiles = (files, i = 0) => {
-  if (i >= files.length) {
-    return null;
-  }
-
+const runTest = file => new Promise((resolve, reject) => {
   const testFilePath = path.join(__dirname, 'temp', `${getRandomString()}.mjs`);
   const testFile = fs.createWriteStream(testFilePath);
 
   const mochaStream = fs.createReadStream(path.join(__dirname, 'src', 'mocha.mjs'));
   mochaStream.pipe(testFile, { end: false });
   mochaStream.on('end', () => {
-    fs.createReadStream(files[i]).pipe(testFile);
-  })
+    fs.createReadStream(file).pipe(testFile);
+  });
 
   const test = cp.spawn('node', [
     '--experimental-modules',
     '--loader',
     path.join(__dirname, 'src', 'loader.mjs'),
-    testFilePath
+    testFilePath,
   ], {
     env: {
       ...process.env,
       NODE_ENV: 'test',
-      MOCHA_BASE_FILE: files[i],
+      MOCHA_BASE_FILE: file,
       MOCHA_COPY_FILE: testFilePath,
-    }
+    },
   });
 
   let output;
@@ -58,12 +61,42 @@ const testFiles = (files, i = 0) => {
   test.stdout.on('data', data => output += data);
   // eslint-disable-next-line no-return-assign
   test.stderr.on('data', data => output += data);
-  test.on('close', () => {
-    // eslint-disable-next-line no-console
-    console.log(output);
+
+  test.on('exit', (code) => {
     fs.unlinkSync(testFilePath);
-    testFiles(files, i + 1);
+
+    if (!code) {
+      resolve(output);
+    } else {
+      reject(output);
+    }
   });
+});
+
+const run = async () => {
+  const files = getTestFiles(path.resolve());
+  let errors = 0;
+
+  for (let i = 0; i < files.length; i++) {
+    try {
+      const output = await runTest(files[i]);
+      console.log(output);
+    } catch (err) {
+      console.error(err);
+      errors++;
+    }
+  }
+
+  if (errors) {
+    console.log('\x1b[0m', '\x1b[31m');
+    console.log(` ✗ ${errors}/${files.length} test suites failed`);
+    console.log('\x1b[0m');
+    process.exit(1);
+  } else {
+    console.log('\x1b[0m', '\x1b[32m');
+    console.log(' ✔ All test suites passed');
+    console.log('\x1b[0m');
+  }
 };
 
-testFiles(getTestFiles(path.resolve()));
+run();
