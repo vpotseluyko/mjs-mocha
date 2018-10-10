@@ -49,37 +49,43 @@ const launch = async (i, test) => {
 };
 
 const describe = async (name, callback) => {
-  console.log('\x1b[33m%s\x1b[0m', `Registering tests for ${name}`);
+  try {
+    console.log('\x1b[33m%s\x1b[0m', `Registering tests for ${name}`);
 
-  callback();
+    callback();
 
-  await hooks.before();
+    await hooks.before();
 
-  for (let i = 0; i < tests.length; i++) {
-    await hooks.beforeEach();
+    for (let i = 0; i < tests.length; i++) {
+      await hooks.beforeEach();
 
-    await launch(i + 1, tests[i]);
+      await launch(i + 1, tests[i]);
 
-    await hooks.afterEach();
-  }
+      await hooks.afterEach();
+    }
 
-  await hooks.after();
+    await hooks.after();
 
-  // reset seq
-  console.log('\x1b[0m');
-
-  if (success === tests.length) {
-    console.log('\x1b[0m', '\x1b[32m');
-    console.log(` ✔ All ${success} tests passed`);
+    // reset seq
     console.log('\x1b[0m');
-    process.exit(0);
-  } else {
-    console.log('\x1b[0m', '\x1b[31m');
-    console.log(` ✗ ${error}/${tests.length} failed`);
+
+    if (success === tests.length) {
+      console.log('\x1b[0m', '\x1b[32m');
+      console.log(` ✔ All ${success} tests passed`);
+      console.log('\x1b[0m');
+      process.exit(0);
+    } else {
+      console.log('\x1b[0m', '\x1b[31m');
+      console.log(` ✗ ${error}/${tests.length} failed`);
+      console.log('\x1b[0m');
+      process.exit(1);
+    }
     console.log('\x1b[0m');
-    process.exit(1);
+  } catch (e) {
+    console.error(e);
+
+    process.exit(1)
   }
-  console.log('\x1b[0m');
 };
 
 
