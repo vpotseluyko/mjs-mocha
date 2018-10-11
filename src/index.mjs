@@ -62,7 +62,14 @@ const runTest = file => new Promise((resolve, reject) => {
     if (!code) {
       resolve(output);
     } else {
-      reject(output);
+      const mochaFile = fs.readFileSync(path.join(__dirname, 'src', 'mocha.mjs'), 'utf8');
+      const mochaFileLinesCount = mochaFile.split('\n').length;
+
+      const formatedOutput = output.replace(new RegExp(`(${testFilePath}:)(.+):`), (match, fileName, lineNumber) => {
+        return `${file}:${+lineNumber - mochaFileLinesCount + 1}:`
+      });
+
+      reject(formatedOutput);
     }
   });
 });
