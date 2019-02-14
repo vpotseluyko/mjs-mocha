@@ -2,14 +2,21 @@
   "name": "mjs-mocha",
   "version": "2.1.1",
   "description": "Simple (very) polyfill to emulate mocha tests in mjs enviroment. For use simply import",
-  "keywords": "mocha,mjs,tests,polyfill",
+  "keywords": [
+    "mocha",
+    "mjs",
+    "tests",
+    "polyfill"
+  ],
   "main": "src/mocha.mjs",
   "bin": {
     "mjs-mocha": "src/shebang.mjs"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "mkdir -p temp"
+    "postinstall": "mkdir -p temp",
+    "eslint": "eslint ./ --ext .js,.mjs",
+    "eslint:fix": "eslint ./ --ext .js,.mjs --fix"
   },
   "repository": {
     "type": "git",
