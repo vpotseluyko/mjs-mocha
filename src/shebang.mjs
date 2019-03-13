@@ -1,5 +1,5 @@
 #!/bin/sh 
-":" // ; exec node --experimental-modules "$0" "$@"
+":" // ; exec node --experimental-modules --no-warnings "$0" "$@"
 
 import index from '.'
 

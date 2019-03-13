@@ -25,7 +25,7 @@ const getTestFiles = (dir) => {
 };
 
 // eslint-disable-next-line consistent-return
-const runTest = file => new Promise((resolve, reject) => {
+const runTest = (file, customNodeArgs) => new Promise((resolve, reject) => {
   const testFilePath = path.join(__dirname, 'temp', `${getRandomString()}.mjs`);
   const testFile = fs.createWriteStream(testFilePath);
 
@@ -35,10 +35,9 @@ const runTest = file => new Promise((resolve, reject) => {
     fs.createReadStream(file).pipe(testFile);
   });
 
-  const customNodeArgs = process.argv.slice(2);
-
   const test = cp.spawn('node', [
     ...customNodeArgs,
+    '--no-warnings',
     '--experimental-modules',
     '--loader',
     path.join(__dirname, 'src', 'loader.mjs'),
@@ -52,7 +51,7 @@ const runTest = file => new Promise((resolve, reject) => {
     },
   });
 
-  let output;
+  let output = '';
 
   // eslint-disable-next-line no-return-assign
   test.stdout.on('data', data => output += data);
@@ -76,12 +75,19 @@ const runTest = file => new Promise((resolve, reject) => {
 });
 
 export default async () => {
-  const files = getTestFiles(path.resolve());
+  const customNodeArgs = process.argv.slice(2).filter(arg => arg.startsWith('-'));
+  const customFiles = process.argv.slice(2).filter(arg => !arg.startsWith('-'));
+
+  let files = getTestFiles(path.resolve());
   let errors = 0;
+
+  if (customFiles.length) {
+    files = files.filter(file => customFiles.some(customFile => file.includes(customFile)));
+  }
 
   for (let i = 0; i < files.length; i++) {
     try {
-      const output = await runTest(files[i]);
+      const output = await runTest(files[i], customNodeArgs);
       console.log(output);
     } catch (err) {
       console.error(err);
@@ -96,7 +102,7 @@ export default async () => {
     process.exit(1);
   } else {
     console.log('\x1b[0m', '\x1b[32m');
-    console.log(' ✔ All test suites passed');
+    console.log(` ✔ All ${files.length} test suites passed`);
     console.log('\x1b[0m');
   }
 };

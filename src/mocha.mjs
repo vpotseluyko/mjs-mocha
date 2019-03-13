@@ -32,16 +32,20 @@ const it = (name, callback) => {
 const launch = async (i, test) => {
   for (const key in test) {
     if (!test.hasOwnProperty(key)) return;
-    console.log('\x1b[1m', '\x1b[37m');
-    console.log(` ➤ ${i}) ${key}`);
     try {
       await test[key]();
-      console.log('\x1b[0m', '\x1b[32m');
-      console.log(`     ✔ ${key} passed`);
+      console.log(
+        '\x1b[0m',
+        '\x1b[32m',
+        `     ✔ ${key} passed`,
+      );
       success++;
     } catch (e) {
-      console.log('\x1b[0m', '\x1b[31m');
-      console.log(`     ✗ ${key} failed`);
+      console.log(
+        '\x1b[0m',
+        '\x1b[31m',
+        `     ✗ ${key} failed`,
+      );
       console.log(e);
       error++;
     }
@@ -50,7 +54,7 @@ const launch = async (i, test) => {
 
 const describe = async (name, callback) => {
   try {
-    console.log('\x1b[33m%s\x1b[0m', `Registering tests for ${name}`);
+    console.log('\x1b[33m%s\x1b[0m', `${name}:`);
 
     callback();
 
@@ -66,21 +70,19 @@ const describe = async (name, callback) => {
 
     await hooks.after();
 
-    // reset seq
-    console.log('\x1b[0m');
-
     if (success === tests.length) {
-      console.log('\x1b[0m', '\x1b[32m');
-      console.log(` ✔ All ${success} tests passed`);
-      console.log('\x1b[0m');
+      console.log(
+        '\x1b[32m',
+        `✔ All ${success} tests passed`, '\x1b[0m',
+      );
       process.exit(0);
     } else {
-      console.log('\x1b[0m', '\x1b[31m');
-      console.log(` ✗ ${error}/${tests.length} failed`);
-      console.log('\x1b[0m');
+      console.log(
+        '\x1b[31m',
+        `✗ ${error}/${tests.length} failed`, '\x1b[0m',
+      );
       process.exit(1);
     }
-    console.log('\x1b[0m');
   } catch (e) {
     console.error(e);
 

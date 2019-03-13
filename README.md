@@ -31,3 +31,18 @@ Add the script to your `package.json`.
 Then just run `npm test`.
 
 mjs-mocha will run all `*.test.mjs` and `*.spec.mjs` files in your repository.
+
+Also you can specify test files to run by passing them as arguments.
+
+#### Example
+project structure:
+- src
+  - ...
+- tests
+  - first.test.mjs
+  - second.test.mjs
+  - third.test.mjs
+
+```shell
+mjs-mocha first second
+```
