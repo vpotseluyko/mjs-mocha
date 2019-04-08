@@ -14,7 +14,6 @@
   },
   "scripts": {
     "test": "cd test && npm i && npm run test",
-    "postinstall": "mkdir -p temp",
     "eslint": "eslint ./ --ext .js,.mjs",
     "eslint:fix": "eslint ./ --ext .js,.mjs --fix"
   },
