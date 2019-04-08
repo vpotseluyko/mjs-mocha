@@ -1,0 +1,14 @@
+{
+  "name": "mjs-mocha-test",
+  "version": "0.0.0",
+  "description": "",
+  "scripts": {
+    "test": "mjs-mocha"
+  },
+  "author": "romap0 <pavlov@pqlab.ru>",
+  "license": "MIT",
+  "dependencies": {
+    "chai": "^4.2.0",
+    "mjs-mocha": "file:.."
+  }
+}

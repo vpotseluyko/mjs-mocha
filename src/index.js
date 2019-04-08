@@ -1,11 +1,12 @@
+#!/usr/bin/env node
+
 /* eslint-disable no-console */
 /* eslint-disable no-plusplus */
 /* eslint-disable no-await-in-loop */
 
-import fs from 'fs';
-import path from 'path';
-import cp from 'child_process';
-import __dirname from '../dirname';
+const fs = require('fs');
+const path = require('path');
+const cp = require('child_process');
 
 const getRandomString = () => Math.random().toString(36).substring(7);
 
@@ -26,10 +27,10 @@ const getTestFiles = (dir) => {
 
 // eslint-disable-next-line consistent-return
 const runTest = (file, customNodeArgs) => new Promise((resolve, reject) => {
-  const testFilePath = path.join(__dirname, 'temp', `${getRandomString()}.mjs`);
+  const testFilePath = path.join(__dirname, '..', 'temp', `${getRandomString()}.mjs`);
   const testFile = fs.createWriteStream(testFilePath);
 
-  const mochaStream = fs.createReadStream(path.join(__dirname, 'src', 'mocha.mjs'));
+  const mochaStream = fs.createReadStream(path.join(__dirname, 'mocha.mjs'));
   mochaStream.pipe(testFile, { end: false });
   mochaStream.on('end', () => {
     fs.createReadStream(file).pipe(testFile);
@@ -40,7 +41,7 @@ const runTest = (file, customNodeArgs) => new Promise((resolve, reject) => {
     '--no-warnings',
     '--experimental-modules',
     '--loader',
-    path.join(__dirname, 'src', 'loader.mjs'),
+    path.join(__dirname, 'loader.mjs'),
     testFilePath,
   ], {
     env: {
@@ -64,7 +65,7 @@ const runTest = (file, customNodeArgs) => new Promise((resolve, reject) => {
     if (!code) {
       resolve(output);
     } else {
-      const mochaFile = fs.readFileSync(path.join(__dirname, 'src', 'mocha.mjs'), 'utf8');
+      const mochaFile = fs.readFileSync(path.join(__dirname, 'mocha.mjs'), 'utf8');
       const mochaFileLinesCount = mochaFile.split('\n').length;
 
       const formatedOutput = output.replace(new RegExp(`(${testFilePath}:)(.+):`), (match, fileName, lineNumber) => `${file}:${+lineNumber - mochaFileLinesCount + 1}:`);
@@ -74,7 +75,7 @@ const runTest = (file, customNodeArgs) => new Promise((resolve, reject) => {
   });
 });
 
-export default async () => {
+const run = async () => {
   const customNodeArgs = process.argv.slice(2).filter(arg => arg.startsWith('-'));
   const customFiles = process.argv.slice(2).filter(arg => !arg.startsWith('-'));
 
@@ -106,3 +107,5 @@ export default async () => {
     console.log('\x1b[0m');
   }
 };
+
+run();
