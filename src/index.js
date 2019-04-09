@@ -25,17 +25,22 @@ const getTestFiles = (dir) => {
   ];
 };
 
-const recreateDir = (dirPath) => {
+const clearOrCreateDir = (dirPath) => {
   if (fs.existsSync(dirPath)) {
-    fs.rmdirSync(dirPath);
-  }
+    const files = fs.readdirSync(dirPath);
 
-  fs.mkdirSync(dirPath);
+    // eslint-disable-next-line no-restricted-syntax
+    for (const file of files) {
+      fs.unlinkSync(path.join(dirPath, file));
+    }
+  } else {
+    fs.mkdirSync(dirPath);
+  }
 };
 
 // eslint-disable-next-line consistent-return
 const runTest = (file, customNodeArgs) => new Promise((resolve, reject) => {
-  recreateDir(path.join(__dirname, '..', 'temp'));
+  clearOrCreateDir(path.join(__dirname, '..', 'temp'));
 
   const testFilePath = path.join(__dirname, '..', 'temp', `${getRandomString()}.mjs`);
   const testFile = fs.createWriteStream(testFilePath);
