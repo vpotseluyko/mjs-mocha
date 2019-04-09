@@ -46,12 +46,15 @@ const runTest = (file, customNodeArgs) => new Promise((resolve, reject) => {
     fs.createReadStream(file).pipe(testFile);
   });
 
+  // NodeJS on Windows doesn`t understand path with backslashes at --loader param 🤨
+  const loaderPath = path.join(path.relative(path.resolve(), __dirname), 'loader.mjs').replace(/\\/g, '/');
+
   const test = cp.spawn('node', [
     ...customNodeArgs,
     '--no-warnings',
     '--experimental-modules',
     '--loader',
-    path.join(__dirname, 'loader.mjs'),
+    loaderPath,
     testFilePath,
   ], {
     env: {
