@@ -52,14 +52,14 @@ const runTest = (file, customNodeArgs) => new Promise((resolve, reject) => {
   });
 
   // NodeJS on Windows doesn`t understand path with backslashes at --loader param 🤨
-  const loaderPath = path.join(process.cwd(), path.relative(path.resolve(), __dirname), 'loader.mjs').replace(/\\/g, '/');
+  const loaderPath = path.join(path.relative(path.resolve(), __dirname), 'loader.mjs').replace(/\\/g, '/');
 
   const test = cp.spawn('node', [
     ...customNodeArgs,
     '--no-warnings',
     '--experimental-modules',
     '--loader',
-    loaderPath,
+    './' + loaderPath,
     testFilePath,
   ], {
     env: {
