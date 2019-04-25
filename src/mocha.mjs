@@ -9,87 +9,124 @@
 // override env to turn on test env. Must come before(!) everything
 process.env.NODE_ENV = 'test';
 
-const tests = [];
-
-let success = 0;
-let error = 0;
-
-const hooks = {
-  before: async () => {},
-  after: async () => {},
-  beforeEach: async () => {},
-  afterEach: async () => {},
-};
-global.before = fn => hooks.before = fn;
-global.after = fn => hooks.after = fn;
-global.beforeEach = fn => hooks.beforeEach = fn;
-global.afterEach = fn => hooks.afterEach = fn;
-
-const it = (name, callback) => {
-  tests.push({ [name]: callback });
-};
-
-const launch = async (i, test) => {
-  for (const key in test) {
-    if (!test.hasOwnProperty(key)) return;
-    try {
-      await test[key]();
-      console.log(
-        '\x1b[0m',
-        '\x1b[32m',
-        `     ✔ ${key} passed`,
-      );
-      success++;
-    } catch (e) {
-      console.log(
-        '\x1b[0m',
-        '\x1b[31m',
-        `     ✗ ${key} failed`,
-      );
-      console.log(e);
-      error++;
-    }
+// current describe environment, changed with every call to describe()
+let current = {
+  "name": "xy",
+  "describes": [],
+  "tests": [],
+  "hooks": {
+    "before": [],
+    "after": [],
+    "beforeEach": [],
+    "afterEach": []
   }
 };
 
-const describe = async (name, callback) => {
-  try {
-    console.log('\x1b[33m%s\x1b[0m', `${name}:`);
+global.before = (fn) => {
+  current.hooks.before = [].concat(current.hooks.before, [fn]);
+};
+global.after = (fn) => {
+  current.hooks.after = [].concat(current.hooks.after, [fn]);
+};
+global.beforeEach = (fn) => {
+  current.hooks.beforeEach = [].concat(current.hooks.beforeEach, [fn]);
+};
+global.afterEach = (fn) => {
+  current.hooks.afterEach = [].concat(current.hooks.afterEach, [fn]);
+};
 
-    callback();
+global.it = (name, callback) => {
+  current.tests = [].concat(current.tests, [{ name, callback }]);
+};
 
-    await hooks.before();
+global.describe = (name, callback) => {
+  let previous = current;
+  current = {
+    name,
+    "describes": [],
+    "tests": [],
+    "hooks": {
+      "before": [],
+      "after": [],
+      "beforeEach": [],
+      "afterEach": []
+    }
+  };
 
-    for (let i = 0; i < tests.length; i++) {
-      await hooks.beforeEach();
+  callback();
+  
+  previous.describes = [].concat(previous.describes, [current]);
+  current = previous;
+};
 
-      await launch(i + 1, tests[i]);
+const spaces = (num) => {
+  let result = "";
+  for (let i = 0; i < num; i++) {
+    result += " ";
+  }
+  return result;
+};
 
-      await hooks.afterEach();
+const color = (code, str) => {
+  return code + str + "\x1b[0m";
+} 
+
+const callHooks = async(arr) => {
+  for (let i = 0; i < arr.length; i++) {
+    await arr[i]();
+  }
+};
+
+process.nextTick(() => {
+  let indent = 2;
+  let success = 0;
+  let error = 0;
+
+  const processLevel = async(level) => {
+    await callHooks(level.hooks.before);
+
+    for (let i = 0; i < level.tests.length; i++) {
+      const test = level.tests[i];
+
+      await callHooks(level.hooks.beforeEach);
+
+      try {
+        await test.callback();
+        console.log(color("\x1b[32m", `${spaces(indent)}✔ ${test.name} passed`));
+        success++;
+      } catch (e) {
+        console.log(color("\x1b[31m", `${spaces(indent)}✗ ${test.name} failed`));
+        console.log(e);
+        error++;
+      }
+
+      await callHooks(level.hooks.afterEach);
     }
 
-    await hooks.after();
+    for (let i = 0; i < level.describes.length; i++) {
+      console.log(color("\x1b[33m", `${spaces(indent)}${level.describes[i].name}:`));
+      
+      indent += 2;
+      await processLevel(level.describes[i]);
+      indent -= 2;
+      
+      console.log("");
+    }
 
-    if (success === tests.length) {
-      console.log(
-        '\x1b[32m',
-        `✔ All ${success} tests passed`, '\x1b[0m',
-      );
-      process.exit(0);
-    } else {
-      console.log(
-        '\x1b[31m',
-        `✗ ${error}/${tests.length} failed`, '\x1b[0m',
-      );
+    await callHooks(level.hooks.after);
+  };
+
+  processLevel(current)
+    .then(() => {
+      if (error === 0) {
+        console.log(color("\x1b[32m", ` ✔ All ${success} tests passed`));
+        process.exit(0);
+      } else {
+        console.log(color("\x1b[31m", ` ✗ ${error}/${success + error} failed`));
+        process.exit(1);
+      }
+    }).catch((e) => {
+      console.error(e);
       process.exit(1);
-    }
-  } catch (e) {
-    console.error(e);
-
-    process.exit(1);
-  }
-};
-
-
-global.it = it;
-global.describe = describe;
+    });
+});
